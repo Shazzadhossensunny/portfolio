@@ -38,12 +38,46 @@ for (let i = 0; i < headerSmallMenuLinks.length; i++) {
 // });
 
 // send mail
+function validateForm() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const message = document.getElementById("message").value.trim();
+  const errorElement = document.getElementById("error-message");
+
+  if (!name || !email || !message) {
+    showMessage(errorElement, "Please fill in all fields.", "red");
+    return false;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showMessage(errorElement, "Please enter a valid email address.", "red");
+    return false;
+  }
+
+  return true;
+}
+
+function showMessage(element, message, color) {
+  element.textContent = message;
+  element.style.display = "block";
+  element.style.color = color;
+  setTimeout(() => {
+    element.style.display = "none";
+  }, 5000); // Hide after 5 seconds
+}
+
 function sendMail() {
-  var params = {
-    name: document.getElementById("name").value,
-    email: document.getElementById("email").value,
-    message: document.getElementById("message").value,
+  if (!validateForm()) {
+    return; // Stop if validation fails
+  }
+
+  const params = {
+    from_name: document.getElementById("name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    message: document.getElementById("message").value.trim()
   };
+
   const serviceID = "service_r0ffn07";
   const templateID = "template_2lx38fm";
 
@@ -54,7 +88,10 @@ function sendMail() {
       document.getElementById("email").value = "";
       document.getElementById("message").value = "";
       console.log(res);
-      alert("Your message sent successfully");
+      showMessage(document.getElementById("success-message"), "Your message was sent successfully!", "green");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      showMessage(document.getElementById("error-message"), "An error occurred. Please try again later.", "red");
+    });
 }
